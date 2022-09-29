@@ -3,7 +3,7 @@ import headerLogo from '../images/logo.svg';
 import { Link, useLocation } from 'react-router-dom';
 
 
-function Header() {
+function Header({ loggedIn, email, onLogout }) {
   const location = useLocation();
   return (
     <header className="header">
@@ -19,14 +19,14 @@ function Header() {
               Регистрация
             </Link>
           )}
-          {/* {loggedIn && (
+          {loggedIn && (
             <div className="header__info">
               <p className="header__email">{email}</p>
-              <Link to="/signin" onClick={onClick} className="header__button">
+              <Link to="/signin" onClick={onLogout} className="header__button">
                 Выйти
               </Link>
             </div>
-          )} */}
+          )}
         </div>
     </header>
   );

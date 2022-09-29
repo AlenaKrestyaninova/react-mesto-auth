@@ -12,6 +12,7 @@ import api from '../utils/api.js';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import Register from './Register.js';
 import Login from './Login.js';
+import InfoTooltip from './InfoTooltip.js';
 import * as auth from '../auth.js';
 import { useNavigate } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute.js';
@@ -21,6 +22,7 @@ function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({link: '', name: ''});
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
@@ -29,16 +31,12 @@ function App() {
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [email, setEmail]  = React.useState('');
   const navigate = useNavigate();
+  const [isRegisterOk, setIsRegisterOk]  = React.useState(false);
 
   const handleLogin = (email, password) =>{
     return auth.authorize(email, password)
       .then((data) => {
-        
-        // if(!data?.jwt){
-        //   return Promise.reject('No data')
-        // };
         setEmail(email);
-        console.log(data);
         localStorage.setItem('jwt', data.token)
         setLoggedIn(true);
         navigate('/');
@@ -48,8 +46,18 @@ function App() {
   const handleRegister = (email, password) =>{
     return auth.register(email, password)
       .then(() =>{
-        navigate('/sign-in')
+        navigate('/sign-in');
+        setIsRegisterOk(true);
+        setIsInfoTooltipOpen(true);
       })
+  };
+
+  const handleLogout = () => {
+    if (!localStorage.getItem('jwt')) return;
+    localStorage.removeItem('jwt');
+    setLoggedIn(false);
+    navigate('/sign-in');
+    console.log(123)
   };
 
   // React.useEffect(() => {
@@ -61,7 +69,6 @@ function App() {
     const tokenCheck = () => {
       if(!localStorage.getItem('jwt')) return;
       const jwt = localStorage.getItem('jwt');
-      console.log('jwt: ', jwt)
       auth.getContent(jwt)
         .then((res) => {
           if (res) {
@@ -107,6 +114,10 @@ function App() {
         .catch((err) => console.log(err))
     }
   }, [loggedIn]);
+
+  function handleLoggedOut() {
+    setLoggedIn(false);
+  }
 
   function handleEditAvatarClick(){
     setIsEditAvatarPopupOpen(true)
@@ -192,6 +203,7 @@ function App() {
     setIsEditAvatarPopupOpen(false);
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
+    setIsInfoTooltipOpen(false);
     setSelectedCard({link: '', name: ''});
   }
 
@@ -199,7 +211,10 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="body">
         <div className="page">
-          <Header />
+          <Header
+            email={email}
+            onLogout={handleLogout}
+            loggedIn={loggedIn} />
           <Routes>
             <Route path="/" element={<ProtectedRoute loggedIn={loggedIn} />}>
               <Route path="/" element={
@@ -224,6 +239,12 @@ function App() {
           </Routes>
           
           <Footer />
+
+          <InfoTooltip
+            registerOk={isRegisterOk}
+            isOpen={isInfoTooltipOpen}
+            onClose={closeAllPopups}
+          />
 
           <ImagePopup
             card={selectedCard}
