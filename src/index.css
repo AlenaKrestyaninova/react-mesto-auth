@@ -7,6 +7,8 @@
 /* Раздел header*/
 @import url(./blocks/header/header.css);
 @import url(./blocks/header/__logo/header__logo.css);
+@import url(./blocks/header/__container/header__container.css);
+@import url(./blocks/header/__button/header__button.css);
 
 
 /* Раздел popup*/
@@ -55,3 +57,8 @@
 /* Раздел footer*/
 @import url(./blocks/footer/footer.css);
 @import url(./blocks/footer/__copyright/footer__copyright.css);
+
+/* Раздел sign-up*/
+@import url(./blocks/sign-up/sign-up.css);
+/* Раздел sign-in*/
+@import url(./blocks/sign-in/sign-in.css);

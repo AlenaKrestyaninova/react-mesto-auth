@@ -9,6 +9,12 @@ import PopupWithForm from '../components/PopupWithForm.js';
 import ImagePopup from '../components/ImagePopup.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
 import api from '../utils/api.js';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import Register from './Register.js';
+import Login from './Login.js';
+import * as auth from '../auth.js';
+import { useNavigate } from "react-router-dom";
+import ProtectedRoute from './ProtectedRoute.js';
 
 
 function App() {
@@ -20,6 +26,53 @@ function App() {
   const [cards, setCards] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen || isAddPlacePopupOpen || selectedCard.link;
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [email, setEmail]  = React.useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = (email, password) =>{
+    return auth.authorize(email, password)
+      .then((data) => {
+        
+        // if(!data?.jwt){
+        //   return Promise.reject('No data')
+        // };
+        setEmail(email);
+        console.log(data);
+        localStorage.setItem('jwt', data.token)
+        setLoggedIn(true);
+        navigate('/');
+      });
+  };
+
+  const handleRegister = (email, password) =>{
+    return auth.register(email, password)
+      .then(() =>{
+        navigate('/sign-in')
+      })
+  };
+
+  // React.useEffect(() => {
+  //   if(!loggedIn) return;
+  //   navigate('/')
+  // }, [loggedIn]);
+
+  React.useEffect(() => {
+    const tokenCheck = () => {
+      if(!localStorage.getItem('jwt')) return;
+      const jwt = localStorage.getItem('jwt');
+      console.log('jwt: ', jwt)
+      auth.getContent(jwt)
+        .then((res) => {
+          if (res) {
+            setEmail(res.email);
+            setLoggedIn(true);
+            navigate('/')
+          }
+        })
+    };
+    tokenCheck()
+  }, [])
 
   React.useEffect(() => {
     function closeByEscape(evt) {
@@ -36,20 +89,24 @@ function App() {
   }, [isOpen]);
 
   React.useEffect(()=>{
-    api.getUserInfo()
-      .then(userInfo => {
-        setCurrentUser(userInfo);
-      })
-      .catch((err) => console.log(err))
-  }, []);
+    if(loggedIn){
+      api.getUserInfo()
+        .then(userInfo => {
+          setCurrentUser(userInfo);
+        })
+        .catch((err) => console.log(err))
+    }
+  }, [loggedIn]);
 
   React.useEffect(()=>{
-    api.getCards()
-      .then(cards => { 
-        setCards(cards)
-      })
-      .catch((err) => console.log(err))
-  }, []);
+    if (loggedIn){
+      api.getCards()
+        .then(cards => { 
+          setCards(cards)
+        })
+        .catch((err) => console.log(err))
+    }
+  }, [loggedIn]);
 
   function handleEditAvatarClick(){
     setIsEditAvatarPopupOpen(true)
@@ -143,15 +200,29 @@ function App() {
       <div className="body">
         <div className="page">
           <Header />
-          <Main
-            onEditAvatar={handleEditAvatarClick}
-            onEditProfile={handleEditProfileClick}
-            onAddCard={handleAddPlaceClick}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            onCardDelete={handleCardDelete}
-            cards={cards}
-          />
+          <Routes>
+            <Route path="/" element={<ProtectedRoute loggedIn={loggedIn} />}>
+              <Route path="/" element={
+                <Main
+                  onEditAvatar={handleEditAvatarClick}
+                  onEditProfile={handleEditProfileClick}
+                  onAddCard={handleAddPlaceClick}
+                  onCardClick={handleCardClick}
+                  onCardLike={handleCardLike}
+                  onCardDelete={handleCardDelete}
+                  cards={cards}
+                />
+              }>
+                
+              </Route>
+            </Route>
+
+            
+            <Route path="/sign-up" element={<Register onRegister={handleRegister}/>} />
+            <Route path="/sign-in" element={<Login onLogin={handleLogin}/>} />
+            <Route path="*" element={loggedIn ? <Navigate replace to="/" /> : <Navigate replace to="/sign-up" />} />
+          </Routes>
+          
           <Footer />
 
           <ImagePopup
