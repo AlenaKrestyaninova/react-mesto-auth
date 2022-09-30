@@ -1,4 +1,6 @@
 import React from 'react';
+import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+
 import Header from '../components/Header.js';
 import Main from '../components/Main.js';
 import Footer from '../components/Footer.js';
@@ -7,15 +9,17 @@ import EditAvatarPopup from '../components/EditAvatarPopup.js';
 import AddPlacePopup from '../components/AddPlacePopup.js';
 import PopupWithForm from '../components/PopupWithForm.js';
 import ImagePopup from '../components/ImagePopup.js';
-import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
-import api from '../utils/api.js';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute.js';
 import Register from './Register.js';
 import Login from './Login.js';
 import InfoTooltip from './InfoTooltip.js';
-import * as auth from '../auth.js';
-import { useNavigate } from "react-router-dom";
-import ProtectedRoute from './ProtectedRoute.js';
+
+
+import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
+import api from '../utils/api.js';
+import * as auth from '../utils/auth.js';
+
+
 
 
 function App() {
@@ -27,11 +31,11 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen || isAddPlacePopupOpen || selectedCard.link;
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [email, setEmail]  = React.useState('');
-  const navigate = useNavigate();
   const [isRegisterOk, setIsRegisterOk]  = React.useState(false);
+  const navigate = useNavigate();
+  
 
   const handleLogin = (email, password) =>{
     return auth.authorize(email, password)
@@ -40,7 +44,10 @@ function App() {
         localStorage.setItem('jwt', data.token)
         setLoggedIn(true);
         navigate('/');
-      });
+      })
+      .catch(err => {
+        console.log(err);
+      })
   };
 
   const handleRegister = (email, password) =>{
@@ -50,6 +57,10 @@ function App() {
         setIsRegisterOk(true);
         setIsInfoTooltipOpen(true);
       })
+      .catch(err => {
+        console.log(err);
+        setIsInfoTooltipOpen(true);
+      });
   };
 
   const handleLogout = () => {
@@ -57,43 +68,43 @@ function App() {
     localStorage.removeItem('jwt');
     setLoggedIn(false);
     navigate('/sign-in');
-    console.log(123)
   };
-
-  // React.useEffect(() => {
-  //   if(!loggedIn) return;
-  //   navigate('/')
-  // }, [loggedIn]);
 
   React.useEffect(() => {
     const tokenCheck = () => {
       if(!localStorage.getItem('jwt')) return;
       const jwt = localStorage.getItem('jwt');
       auth.getContent(jwt)
-        .then((res) => {
-          if (res) {
-            setEmail(res.email);
+        .then((data) => {
+          if (data) {
+            setEmail(data.data.email);
+            console.log(data.data.email)
             setLoggedIn(true);
             navigate('/')
           }
+        })
+        .catch(err => {
+          console.log(err);
         })
     };
     tokenCheck()
   }, [])
 
-  React.useEffect(() => {
-    function closeByEscape(evt) {
-      if(evt.key === 'Escape') {
-        closeAllPopups();
-      }
-    }
-    if(isOpen) {
-      document.addEventListener('keydown', closeByEscape);
-      return () => {
-        document.removeEventListener('keydown', closeByEscape);
-      }
-    }
-  }, [isOpen]);
+  // Эффект закрытия попапа по эскейпу будет реализован позднее
+  // const isOpen = isEditAvatarPopupOpen || isEditProfilePopupOpen || isAddPlacePopupOpen || isInfoTooltipOpen || selectedCard.link;
+  // React.useEffect(() => {
+  //   function closeByEscape(evt) {
+  //     if(evt.key === 'Escape') {
+  //       closeAllPopups();
+  //     }
+  //   }
+  //   if(isOpen) {
+  //     document.addEventListener('keydown', closeByEscape);
+  //     return () => {
+  //       document.removeEventListener('keydown', closeByEscape);
+  //     }
+  //   }
+  // }, [isOpen]);
 
   React.useEffect(()=>{
     if(loggedIn){
@@ -114,10 +125,6 @@ function App() {
         .catch((err) => console.log(err))
     }
   }, [loggedIn]);
-
-  function handleLoggedOut() {
-    setLoggedIn(false);
-  }
 
   function handleEditAvatarClick(){
     setIsEditAvatarPopupOpen(true)

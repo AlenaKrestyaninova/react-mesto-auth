@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 function Header({ loggedIn, email, onLogout }) {
   const location = useLocation();
+  
   return (
     <header className="header">
         <img src={headerLogo} alt="лого" className="header__logo" />

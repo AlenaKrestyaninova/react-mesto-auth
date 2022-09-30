@@ -20,13 +20,6 @@ const Register = props => {
     const { email, password } = state;
     if (!password || !email) return;
     props.onRegister(email, password)
-      .catch(err => {
-        console.log(err);
-        setState(old =>({
-          ...old,
-          message: 'Что-то пошло не так!'
-        }))
-      });
   }
 
   return (

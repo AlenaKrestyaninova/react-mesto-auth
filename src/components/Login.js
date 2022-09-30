@@ -20,20 +20,31 @@ const Login = props => {
     e.preventDefault();
     const { email, password } = state;
     if (!password || !email) return;
-    props.onLogin(email, password)
-
-      .catch(err => {
-        console.log(err);
-        setState(old => ({...old, message: 'Что-то пошло не так!'}))
-      })    
+    props.onLogin(email, password);
   };
 
   return (
     <div className="sign-in">
       <h2 className='sign-in__title'>Вход</h2>
       <form onSubmit={handleSubmit} className='sign-in__form'>
-        <input id="email" name="email" onChange={handleChange} value={state.email} type="email" className="sign-in__input sign-up__input_type_email" placeholder="Email" required />
-        <input id="password" name="password" onChange={handleChange} value={state.password} type="password" className="sign-in__input sign-up__input_type_password" placeholder="Пароль" required />
+        <input 
+          id="email" 
+          name="email" 
+          onChange={handleChange} 
+          value={state.email} 
+          type="email" 
+          className="sign-in__input sign-up__input_type_email" 
+          placeholder="Email" 
+          required />
+        <input 
+          id="password" 
+          name="password" 
+          onChange={handleChange} 
+          value={state.password} 
+          type="password" 
+          className="sign-in__input sign-up__input_type_password" 
+          placeholder="Пароль" 
+          required />
         <button type="submit" className='sign-in__submit'>Войти</button>
       </form>
     </div>
