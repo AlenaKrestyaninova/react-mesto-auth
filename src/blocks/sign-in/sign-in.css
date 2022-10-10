@@ -46,3 +46,27 @@
     justify-content: center;
     margin-top: 216px;
 }
+
+/* Медиа-запрос для ширины 320px*/
+@media screen and (max-width:767px) {
+    .sign-in {
+        margin-top: 40px;
+    }
+    .sign-in__title {
+        font-size: 20px;
+        line-height: 24px;
+    }
+    .sign-in__form {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .sign-in__input {
+        max-width: 100%;
+    }
+    .sign-in__submit {
+        max-width: 100%;
+        font-size: 16px;
+        line-height: 19px;
+        margin-top: 173px;
+    }
+}

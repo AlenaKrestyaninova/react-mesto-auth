@@ -11,11 +11,15 @@ function InfoTooltip(props) {
         <button className="popup__close"
           onClick={onClose}>
         </button>
-        <img className="popup__register-image"
-          src={registerOk ? okSignUp : neOkSignUp} 
-          alt={registerOk ? 'Вы успешно зарегистрировались!' : 'Упс'}
-        />
-        <h2 className="popup__message">{registerOk ? 'Вы успешно зарегистрировались!' : 'Что-то пошло не так! Попробуйте еще раз.'}</h2>
+        <div className='popup__content'>
+          <img className="popup__register-image"
+            src={registerOk ? okSignUp : neOkSignUp} 
+            alt={registerOk ? 'Вы успешно зарегистрировались!' : 'Упс'}
+          />
+          <h2 className="popup__message">{registerOk ? 'Вы успешно зарегистрировались!' : 'Что-то пошло не так! Попробуйте еще раз.'}</h2>
+        </div>
+        
+        
       </div>
     </div>
   );

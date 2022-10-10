@@ -4,6 +4,15 @@
     line-height: 29px;
     text-align: center;
     color: #000000;
-    padding: 32px 36px 60px 36px;
+    padding-top: 32px;
     margin: 0 auto;
+}
+
+/* Медиа-запрос для ширины 320px*/
+@media screen and (max-width:767px) {
+    .popup__message {
+        padding-top: 40px;
+        font-size: 20px;
+        line-height: 24px;
+    }
 }
